@@ -13,6 +13,13 @@ function disposeObject(object) {
   })
 }
 
+function supportsWebGL() {
+  const canvas = document.createElement('canvas')
+  return Boolean(
+    canvas.getContext('webgl2') || canvas.getContext('webgl'),
+  )
+}
+
 function createDoorModel(config) {
   const root = new THREE.Group()
   const width = config.width / 100
@@ -148,6 +155,13 @@ export default function ProductViewer({ config, label, unavailableLabel }) {
   useEffect(() => {
     const mount = mountRef.current
     if (!mount) return undefined
+
+    if (!supportsWebGL()) {
+      const fallbackFrame = window.requestAnimationFrame(() => {
+        setIsUnavailable(true)
+      })
+      return () => window.cancelAnimationFrame(fallbackFrame)
+    }
 
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100)
