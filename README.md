@@ -1,48 +1,49 @@
-# FORM — 3D Product Viewer Concept
+# FORM — 3D Product Viewer
 
-An Arabic-first, bilingual 3D door configurator concept built to connect industrial product specifications with a clear browser-based experience.
+An Arabic-first, bilingual 3D door configurator that connects industrial product specifications with an interactive browser experience.
 
-The interface lets a user explore illustrative dimensions, finishes, hardware, hinge direction, opening angle, and an exploded component view. It intentionally contains no prices, quotation logic, orders, accounts, analytics, or data submission.
+## Overview
 
-## Why this project exists
+FORM explores how lightweight 3D visualization can improve early manufacturing and sales conversations before a production quotation, CAD approval, product-information system, or order-management workflow is implemented.
 
-FORM demonstrates how a lightweight interactive model can support early manufacturing and sales conversations before a production quotation, CAD, product-information, or order-management system is implemented.
+## Tech Stack
 
-## Highlights
-
-- Procedural Three.js model with no external 3D assets
-- Arabic-first UI with complete RTL and English support
-- Responsive mouse, touch, and form controls
-- Live, accessible specification summary
-- WebGL fallback and reduced-motion support
-- Local-only language preference; no tracking or network submissions
-
-## Stack
-
-- React 19
-- Three.js
+- React 19 and JavaScript
+- Three.js and WebGL
 - Vite 8
 - Modern CSS
 - ESLint 10
 
-## Local development
+## Key Features
+
+- Procedural Three.js door model with no external 3D assets
+- Interactive dimensions, finishes, hardware, hinge direction, and opening angle
+- Exploded component view and accessible live specification summary
+- Complete Arabic/English RTL/LTR interface
+- Responsive mouse, touch, keyboard, and form controls
+- WebGL fallback and reduced-motion support
+- Local-only language preference with no tracking or data submission
+
+## Setup
 
 ```bash
-npm install
+git clone https://github.com/azizkza99/bezi-product-viewer.git
+cd bezi-product-viewer
+npm ci
 npm run dev
 ```
 
-Run all release checks:
+## Quality Checks
 
 ```bash
 npm run check
 npm audit --audit-level=high
 ```
 
-## Scope and accuracy
+## Scope
 
-This is a portfolio concept. The displayed values are illustrative and are not manufacturing drawings, engineering approval, availability, or a commercial quotation.
+The displayed values are illustrative. This portfolio concept is not a manufacturing drawing, engineering approval, availability statement, order, or commercial quotation.
 
 ## License
 
-MIT
+[MIT](./LICENSE)
