@@ -24,6 +24,14 @@ FORM explores how lightweight 3D visualization can improve early manufacturing a
 - WebGL fallback and reduced-motion support
 - Local-only language preference with no tracking or data submission
 
+## Project Structure
+
+- `src/App.jsx` owns the controls, specification summary, localization, and lazy 3D loading.
+- `src/ProductViewer.jsx` constructs and disposes the procedural Three.js model.
+- `src/content.js` contains the Arabic and English product descriptions.
+
+On low-resource devices the renderer caps pixel density and shadow resolution. If WebGL cannot start or the graphics context is lost, the viewer displays a text fallback; the product controls and specification summary remain available.
+
 ## Setup
 
 ```bash

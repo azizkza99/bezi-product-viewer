@@ -14,10 +14,12 @@ function disposeObject(object) {
 }
 
 function supportsWebGL() {
-  const canvas = document.createElement('canvas')
-  return Boolean(
-    canvas.getContext('webgl2') || canvas.getContext('webgl'),
-  )
+  try {
+    const canvas = document.createElement('canvas')
+    return Boolean(canvas.getContext('webgl2') || canvas.getContext('webgl'))
+  } catch {
+    return false
+  }
 }
 
 function createDoorModel(config) {
@@ -180,7 +182,8 @@ export default function ProductViewer({ config, label, unavailableLabel }) {
       })
       return () => window.cancelAnimationFrame(fallbackFrame)
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+    // Keep the pixel budget predictable on high-density mobile displays.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5))
     renderer.outputColorSpace = THREE.SRGBColorSpace
     renderer.toneMapping = THREE.ACESFilmicToneMapping
     renderer.toneMappingExposure = 1.12
@@ -202,7 +205,7 @@ export default function ProductViewer({ config, label, unavailableLabel }) {
     const keyLight = new THREE.DirectionalLight('#fff4df', 4.8)
     keyLight.position.set(3.5, 5.5, 4)
     keyLight.castShadow = true
-    keyLight.shadow.mapSize.set(1024, 1024)
+    keyLight.shadow.mapSize.set(512, 512)
     scene.add(keyLight)
 
     const rimLight = new THREE.DirectionalLight('#7da7ff', 2.1)
@@ -228,14 +231,17 @@ export default function ProductViewer({ config, label, unavailableLabel }) {
     runtimeRef.current = { modelRoot }
 
     const resize = () => {
-      const width = mount.clientWidth
-      const height = mount.clientHeight
+      const width = Math.max(mount.clientWidth, 1)
+      const height = Math.max(mount.clientHeight, 1)
       renderer.setSize(width, height, false)
-      camera.aspect = width / Math.max(height, 1)
+      camera.aspect = width / height
       camera.updateProjectionMatrix()
     }
-    const resizeObserver = new ResizeObserver(resize)
-    resizeObserver.observe(mount)
+    const resizeObserver = typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver(resize)
+      : null
+    resizeObserver?.observe(mount)
+    if (!resizeObserver) window.addEventListener('resize', resize)
     resize()
 
     const renderFrame = () => {
@@ -244,15 +250,26 @@ export default function ProductViewer({ config, label, unavailableLabel }) {
     }
     renderer.setAnimationLoop(renderFrame)
 
-    const visibilityObserver = new IntersectionObserver(([entry]) => {
-      renderer.setAnimationLoop(entry.isIntersecting ? renderFrame : null)
-    })
-    visibilityObserver.observe(mount)
+    const visibilityObserver = typeof IntersectionObserver !== 'undefined'
+      ? new IntersectionObserver(([entry]) => {
+          renderer.setAnimationLoop(entry.isIntersecting ? renderFrame : null)
+        })
+      : null
+    visibilityObserver?.observe(mount)
+
+    const handleContextLost = (event) => {
+      event.preventDefault()
+      renderer.setAnimationLoop(null)
+      setIsUnavailable(true)
+    }
+    renderer.domElement.addEventListener('webglcontextlost', handleContextLost)
 
     return () => {
       renderer.setAnimationLoop(null)
-      resizeObserver.disconnect()
-      visibilityObserver.disconnect()
+      resizeObserver?.disconnect()
+      if (!resizeObserver) window.removeEventListener('resize', resize)
+      visibilityObserver?.disconnect()
+      renderer.domElement.removeEventListener('webglcontextlost', handleContextLost)
       controls.dispose()
       disposeObject(scene)
       scene.clear()
